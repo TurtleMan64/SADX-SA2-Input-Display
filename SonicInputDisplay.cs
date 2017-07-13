@@ -25,8 +25,9 @@ public class SonicInputDisplay
     public static extern bool ReadProcessMemory(int hProcess, 
         int lpBaseAddress, byte[] lpBuffer, int dwSize, ref int lpNumberOfBytesRead);
 	
-    public static IntPtr processHandle;
+    public static IntPtr processHandle = IntPtr.Zero;
 	public static int gameID = -1;
+	public static bool loop = true;
 	
 	private static Display theDisplay;
 	
@@ -34,42 +35,6 @@ public class SonicInputDisplay
     {
 		var handle = GetConsoleWindow();
         ShowWindow(handle, SW_HIDE);
-
-        Process process;
-        try 
-        {
-            process = Process.GetProcessesByName("sonic2app")[0];
-			gameID = 0;
-        }
-        catch
-        {
-			try
-			{
-				process = Process.GetProcessesByName("sonic")[0];
-				gameID = 1;
-			}
-			catch
-			{
-				try
-				{
-					process = Process.GetProcessesByName("Sonic Adventure DX")[0];
-					gameID = 1;
-				}
-				catch
-				{
-					MessageBox.Show("Open either SADX of SA2B");
-					return;
-				}
-			}
-        }
-		
-        processHandle = OpenProcess(PROCESS_WM_READ, false, process.Id); 
-        if (processHandle == null)
-        {
-            MessageBox.Show("Couldn't open the process");
-            return;
-        }
-		
 		
 		theDisplay = new Display();
 		theDisplay.ClientSize = new Size(216, 136);
@@ -78,16 +43,7 @@ public class SonicInputDisplay
 		theDisplay.FormBorderStyle = FormBorderStyle.FixedSingle; 
 		theDisplay.StartPosition = FormStartPosition.CenterScreen;
 		theDisplay.BackColor = System.Drawing.Color.Black;
-		switch (gameID)
-		{
-			case 0: theDisplay.Text = "SA2 Input"; break;
-			
-			case 1: theDisplay.Text = "SADX Input"; break;
-				
-			default: break;
-		}
-		
-		bool loop = true;
+		theDisplay.Text = "Searching for SADX/SA2B";
 		
 		//Thread to handle the window
         new Thread(() =>
@@ -97,16 +53,15 @@ public class SonicInputDisplay
             loop = false;
         }).Start();
 		
-		
 		while (loop)
         {
 			switch (gameID)
 			{
-				case 0: setValuesFromSA2();break;
+				case 0: setValuesFromSA2(); break;
 				
 				case 1: setValuesFromSADX(); break;
 					
-				default: break;
+				default: attatchToGame(); break;
 			}
 			theDisplay.Refresh();
             System.Threading.Thread.Sleep(14);
@@ -121,6 +76,7 @@ public class SonicInputDisplay
         if (ReadProcessMemory((int)processHandle, 0x01A52C4C, buffer, 12, ref bytesRead) == false || bytesRead != 12)
         {
 			theDisplay.setControllerDataSA2(0, 0, 0);
+			gameID = -1;
             return;
         }
 
@@ -152,6 +108,7 @@ public class SonicInputDisplay
         if (ReadProcessMemory((int)processHandle, 0x03B0E80C, buffer, 20, ref bytesRead) == false || bytesRead != 20)
         {
 			theDisplay.setControllerDataSADX(0, 0, 0);
+			gameID = -1;
             return;
         }
 
@@ -174,5 +131,62 @@ public class SonicInputDisplay
         joyY+=buffer[3]<<24;
 		
 		theDisplay.setControllerDataSADX(buttons, joyX, -joyY);
+	}
+	
+	private static void attatchToGame()
+	{
+		theDisplay.Text = "Searching for SADX/SA2B";
+		processHandle = IntPtr.Zero;
+		gameID = -1;
+		
+		Process process = null;
+		try 
+		{
+			process = Process.GetProcessesByName("sonic2app")[0];
+			gameID = 0;
+		}
+		catch
+		{
+			try
+			{
+				process = Process.GetProcessesByName("sonic")[0];
+				gameID = 1;
+			}
+			catch
+			{
+				try
+				{
+					process = Process.GetProcessesByName("Sonic Adventure DX")[0];
+					gameID = 1;
+				}
+				catch
+				{
+					gameID = -1;
+				}
+			}
+		}
+		
+		if (gameID != -1)
+		{
+			try
+			{
+				processHandle = OpenProcess(PROCESS_WM_READ, false, process.Id);
+			}
+			catch
+			{
+				gameID = -1;
+			}
+		}
+		
+		System.Threading.Thread.Sleep(500);
+		
+		switch (gameID)
+		{
+			case 0: theDisplay.Text = "SA2 Input"; break;
+			
+			case 1: theDisplay.Text = "SADX Input"; break;
+				
+			default: break;
+		}
 	}
 }
