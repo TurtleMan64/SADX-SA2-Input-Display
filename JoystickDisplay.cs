@@ -31,8 +31,8 @@ namespace JoystickDisplay
 		
 		public Display()
 		{
-			joyX = 96;
-			joyY = 96;
+			joyX = 0;
+			joyY = 0;
 			A = 1;
 			B = 1;
 			X = 1;
