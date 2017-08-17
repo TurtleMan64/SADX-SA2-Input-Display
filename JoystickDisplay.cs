@@ -70,6 +70,30 @@ namespace JoystickDisplay
 			
 			joyX = newX;
 			joyY = newY;
+			
+			//D-Pad
+			int up    = buttons & 8;
+			int down  = buttons & 4;
+			int left  = buttons & 1;
+			int right = buttons & 2;
+			
+			if (right != 0)
+			{
+				joyX = 127;
+			}
+			else if (left != 0)
+			{
+				joyX = -128;
+			}
+			
+			if (up != 0)
+			{
+				joyY = 127;
+			}
+			else if (down != 0)
+			{
+				joyY = -128;
+			}
 		}
 		
 		public void setControllerDataSADX(int buttons, int newX, int newY)
@@ -84,6 +108,30 @@ namespace JoystickDisplay
 			
 			joyX = newX;
 			joyY = newY;
+			
+			//D-Pad
+			int up    = buttons & 16;
+			int down  = buttons & 32;
+			int left  = buttons & 64;
+			int right = buttons & 128;
+			
+			if (right != 0)
+			{
+				joyX = 127;
+			}
+			else if (left != 0)
+			{
+				joyX = -128;
+			}
+			
+			if (up != 0)
+			{
+				joyY = 127;
+			}
+			else if (down != 0)
+			{
+				joyY = -128;
+			}
 		}
 		
 		protected override void OnPaint(PaintEventArgs e)
