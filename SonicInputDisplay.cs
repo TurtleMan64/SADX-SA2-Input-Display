@@ -43,7 +43,7 @@ public class SonicInputDisplay
 		theDisplay.FormBorderStyle = FormBorderStyle.FixedSingle; 
 		theDisplay.StartPosition = FormStartPosition.CenterScreen;
 		theDisplay.BackColor = System.Drawing.Color.Black;
-		theDisplay.Text = "Searching for SADX/SA2B";
+		theDisplay.Text = "Searching for game...";
 		
 		//Thread to handle the window
         new Thread(() =>
@@ -60,6 +60,8 @@ public class SonicInputDisplay
 				case 0: setValuesFromSA2(); break;
 				
 				case 1: setValuesFromSADX(); break;
+				
+				case 2: setValuesFromHeroes(); break;
 					
 				default: attatchToGame(); break;
 			}
@@ -133,9 +135,33 @@ public class SonicInputDisplay
 		theDisplay.setControllerDataSADX(buttons, joyX, -joyY);
 	}
 	
+	private static void setValuesFromHeroes()
+	{
+		int bytesRead = 0;
+        byte[] buffer = new byte[28];
+        if (ReadProcessMemory((int)processHandle, 0x00A23598, buffer, 28, ref bytesRead) == false || bytesRead != 28)
+        {
+			theDisplay.setControllerDataHeroes(0, 0, 0, 0);
+			gameID = -1;
+            return;
+        }
+
+        int buttons = 0;
+        buttons+=buffer[0];
+        buttons+=buffer[1]<<8;
+        buttons+=buffer[2]<<16;
+        buttons+=buffer[3]<<24;
+		
+		float joyX = System.BitConverter.ToSingle(buffer, 16);
+		float joyY = System.BitConverter.ToSingle(buffer, 20);
+		float cameraPan = System.BitConverter.ToSingle(buffer, 24);
+		
+		theDisplay.setControllerDataHeroes(buttons, joyX, joyY, cameraPan);
+	}
+	
 	private static void attatchToGame()
 	{
-		theDisplay.Text = "Searching for SADX/SA2B";
+		theDisplay.Text = "Searching for game...";
 		processHandle = IntPtr.Zero;
 		gameID = -1;
 		
@@ -161,7 +187,15 @@ public class SonicInputDisplay
 				}
 				catch
 				{
-					gameID = -1;
+					try
+					{
+						process = Process.GetProcessesByName("Tsonic_win")[0];
+						gameID = 2;
+					}
+					catch
+					{
+						gameID = -1;
+					}
 				}
 			}
 		}
@@ -185,6 +219,8 @@ public class SonicInputDisplay
 			case 0: theDisplay.Text = "SA2 Input"; break;
 			
 			case 1: theDisplay.Text = "SADX Input"; break;
+			
+			case 2: theDisplay.Text = "Heroes Input"; break;
 				
 			default: break;
 		}
