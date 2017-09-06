@@ -1,5 +1,5 @@
 # SADX-SA2-Input-Display
-An input display that directly reads what the game sees as input from your controller. Works with either Sonic Adventure DX (2004 version, not Steam release) or Sonic Adventure 2: Battle.    
+An input display that directly reads what the game sees as input from your controller. Works with Sonic Adventure DX (2004 version, not Steam release), Sonic Adventure 2: Battle, and Sonic Heroes.  
     
 ![Imgur](http://i.imgur.com/cca2wiI.png)    
      
