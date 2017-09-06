@@ -134,6 +134,54 @@ namespace JoystickDisplay
 			}
 		}
 		
+		public void setControllerDataHeroes(int buttons, float newX, float newY, float camPan)
+		{
+			A = buttons & 1;
+			B = buttons & 2;
+			Y = buttons & 8;
+			X = buttons & 4;
+			S = buttons & 16384;
+			
+			R = 0;
+			L = 0;
+			if (camPan < -0.3)
+			{
+				R = 1;
+			}
+			
+			if (camPan > 0.3)
+			{
+				L = 1;
+			}
+			
+			joyX = (int)(newX*127);
+			joyY = (int)(-newY*127);
+			
+			//D-Pad
+			int up    = buttons & 16;
+			int down  = buttons & 32;
+			int left  = buttons & 64;
+			int right = buttons & 128;
+			
+			if (right != 0)
+			{
+				joyX = 127;
+			}
+			else if (left != 0)
+			{
+				joyX = -128;
+			}
+			
+			if (up != 0)
+			{
+				joyY = 127;
+			}
+			else if (down != 0)
+			{
+				joyY = -128;
+			}
+		}
+		
 		protected override void OnPaint(PaintEventArgs e)
 		{
 		   if (A != 0)
