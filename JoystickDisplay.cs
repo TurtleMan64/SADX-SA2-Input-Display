@@ -141,9 +141,9 @@ namespace JoystickDisplay
 			Y = buttons & 8;
 			X = buttons & 4;
 			S = buttons & 16384;
+			R = buttons & 512;
+			L = buttons & 256;
 			
-			R = 0;
-			L = 0;
 			if (camPan < -0.3)
 			{
 				R = 1;
