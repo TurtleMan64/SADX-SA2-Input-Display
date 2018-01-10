@@ -42,7 +42,7 @@ public class SonicInputDisplay
 		theDisplay.MaximizeBox = false;
 		theDisplay.FormBorderStyle = FormBorderStyle.FixedSingle; 
 		theDisplay.StartPosition = FormStartPosition.CenterScreen;
-		theDisplay.BackColor = System.Drawing.Color.Black;
+		theDisplay.BackColor = Color.FromArgb(1, 1, 1); //Almost, but not exactly black
 		theDisplay.Text = "Searching for game...";
 		
 		//Thread to handle the window
