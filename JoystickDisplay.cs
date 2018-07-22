@@ -43,9 +43,17 @@ namespace JoystickDisplay
 			R    = 1;
 			S    = 1;
 			
+			try
+			{
+				string[] lines = System.IO.File.ReadAllLines("Index.ini");
+				int savedIndex = Int32.Parse(lines[0]);
+				folderIndex = savedIndex;
+			}
+			catch {}
+			
 			string path = System.IO.Path.GetDirectoryName(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName);
 			string[] folders = System.IO.Directory.GetDirectories(path,"*", System.IO.SearchOption.AllDirectories);
-			string folder = folders[0];
+			string folder = folders[folderIndex];
 			
 			imgBase       = new Bitmap(folder+"/base.png");
 			imgStick      = new Bitmap(folder+"/stick.png");
@@ -298,5 +306,15 @@ namespace JoystickDisplay
 				imgStickSmall = new Bitmap(folder+"/stickSmall.png");
 			}
 		}
+		
+		public void saveIndex()
+		{
+			try
+			{
+				string text = ""+folderIndex;
+				System.IO.File.WriteAllText("Index.ini", text);
+			}
+			catch {}
+		}		
 	}
 }
