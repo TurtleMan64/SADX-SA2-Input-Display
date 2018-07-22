@@ -42,7 +42,7 @@ public class SonicInputDisplay
 		theDisplay.MaximizeBox = false;
 		theDisplay.FormBorderStyle = FormBorderStyle.FixedSingle; 
 		theDisplay.StartPosition = FormStartPosition.CenterScreen;
-		theDisplay.BackColor = Color.FromArgb(1, 1, 1); //Almost, but not exactly black
+		theDisplay.BackColor = Color.FromArgb(2, 2, 2); //Almost, but not exactly black
 		theDisplay.Text = "Searching for game...";
 		
 		//Thread to handle the window
@@ -50,6 +50,7 @@ public class SonicInputDisplay
         {
             Thread.CurrentThread.IsBackground = true;
             theDisplay.ShowDialog();
+			theDisplay.saveIndex();
             loop = false;
         }).Start();
 		
@@ -68,7 +69,6 @@ public class SonicInputDisplay
 			theDisplay.Refresh();
             System.Threading.Thread.Sleep(14);
         }
-		
 	}
 
 	private static void setValuesFromSA2()
