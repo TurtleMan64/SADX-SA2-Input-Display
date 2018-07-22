@@ -199,6 +199,43 @@ namespace JoystickDisplay
 			}
 		}
 		
+		public void setControllerDataMania(int buttons, int stick)
+		{
+			A = buttons & 16;
+			B = buttons & 32;
+			Y = buttons & 128;
+			X = buttons & 64;
+			S = stick   & 32; //Enter key sets both 16 and 32 bit
+			R = 0;
+			L = 0;
+			
+			joyX = 0;
+			joyY = 0;
+			
+			int up    = stick & 1;
+			int down  = stick & 2;
+			int left  = stick & 4;
+			int right = stick & 8;
+			
+			if (right != 0)
+			{
+				joyX = 127;
+			}
+			else if (left != 0)
+			{
+				joyX = -128;
+			}
+			
+			if (up != 0)
+			{
+				joyY = 127;
+			}
+			else if (down != 0)
+			{
+				joyY = -128;
+			}
+		}
+		
 		protected override void OnPaint(PaintEventArgs e)
 		{
 			if (A != 0)
