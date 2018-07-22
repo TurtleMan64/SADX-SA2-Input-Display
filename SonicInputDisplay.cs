@@ -63,6 +63,8 @@ public class SonicInputDisplay
 				case 1: setValuesFromSADX(); break;
 				
 				case 2: setValuesFromHeroes(); break;
+				
+				case 3: setValuesFromMania(); break;
 					
 				default: attatchToGame(); break;
 			}
@@ -159,6 +161,26 @@ public class SonicInputDisplay
 		theDisplay.setControllerDataHeroes(buttons, joyX, joyY, cameraPan);
 	}
 	
+	private static void setValuesFromMania()
+	{
+		int bytesRead = 0;
+        byte[] buffer = new byte[2];
+        if (ReadProcessMemory((int)processHandle, 0x0083251D, buffer, 2, ref bytesRead) == false || bytesRead != 2)
+        {
+			theDisplay.setControllerDataMania(0, 0);
+			gameID = -1;
+            return;
+        }
+
+        int buttons = 0;
+        buttons+=buffer[0];
+		
+		int stick = 0;
+		stick+=buffer[1];
+		
+		theDisplay.setControllerDataMania(buttons, stick);
+	}
+	
 	private static void attatchToGame()
 	{
 		theDisplay.Text = "Searching for game...";
@@ -194,7 +216,15 @@ public class SonicInputDisplay
 					}
 					catch
 					{
-						gameID = -1;
+						try
+						{
+							process = Process.GetProcessesByName("SonicMania")[0];
+							gameID = 3;
+						}
+						catch
+						{
+							gameID = -1;
+						}
 					}
 				}
 			}
@@ -221,6 +251,8 @@ public class SonicInputDisplay
 			case 1: theDisplay.Text = "SADX Input"; break;
 			
 			case 2: theDisplay.Text = "Heroes Input"; break;
+			
+			case 3: theDisplay.Text = "Mania Input"; break;
 				
 			default: break;
 		}
