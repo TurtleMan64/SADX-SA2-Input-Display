@@ -4,15 +4,15 @@ An input display that directly reads what the game sees as input from your contr
 ![Imgur](http://i.imgur.com/cca2wiI.png)    
 
 ### Download the exe:     
-https://github.com/TurtleMan64/SADX-SA2-Input-Display/releases/tag/v1.5     
+https://github.com/TurtleMan64/SADX-SA2-Input-Display/releases/tag/latest     
      
      
-How to compile:     
+#### How to compile:     
      
 Compile JoystickDisplay.cs as a DLL with the command:    
-C:/Windows/Microsoft.NET/Framework/v4.0.30319/csc.exe /target:library /out:joydisp.DLL JoystickDisplay.cs     
+`C:/Windows/Microsoft.NET/Framework/v4.0.30319/csc.exe /target:library /out:joydisp.DLL JoystickDisplay.cs`    
     
 Now compile the main SonicInputDisplay.cs while linking the library:    
-C:/Windows/Microsoft.NET/Framework/v4.0.30319/csc.exe /out:SonicInputDisplay.exe /reference:joydisp.DLL SonicInputDisplay.cs    
+`C:/Windows/Microsoft.NET/Framework/v4.0.30319/csc.exe /out:SonicInputDisplay.exe /reference:joydisp.DLL SonicInputDisplay.cs`    
     
-Now you have the SonicInputDisplay.exe that you can run. Make sure that you run it in the same folder as the res folder that contains all of the images.     
+Now you have the `SonicInputDisplay.exe` that you can run. Make sure that you run it in the same folder as the res folder that contains all of the images.     
