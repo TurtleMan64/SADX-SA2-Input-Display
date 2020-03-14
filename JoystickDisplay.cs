@@ -264,13 +264,13 @@ namespace JoystickDisplay
             refreshButtonCounts();
         }
         
-        public void setControllerDataMania(int buttons, int stick)
+        public void setControllerDataMania(int inputs)
         {
-            A = buttons & 16;
-            B = buttons & 32;
-            Y = buttons & 128;
-            X = buttons & 64;
-            S = stick   & 16;
+            A = inputs & 4096;
+            B = inputs & 8192;
+            Y = inputs & 32768;
+            X = inputs & 16384;
+            S = inputs & 48;
             
             R = 0;
             L = 0;
@@ -278,10 +278,10 @@ namespace JoystickDisplay
             joyX = 0;
             joyY = 0;
             
-            int up    = stick & 1;
-            int down  = stick & 2;
-            int left  = stick & 4;
-            int right = stick & 8;
+            int up    = inputs & 1;
+            int down  = inputs & 2;
+            int left  = inputs & 4;
+            int right = inputs & 8;
             
             if (right != 0)
             {
