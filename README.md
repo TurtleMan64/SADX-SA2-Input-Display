@@ -4,7 +4,7 @@ An input display that directly reads what the game sees as input from your contr
 ![Imgur](http://i.imgur.com/cca2wiI.png)    
 
 ### Download the exe:     
-https://github.com/TurtleMan64/SADX-SA2-Input-Display/releases/tag/latest     
+https://github.com/TurtleMan64/SADX-SA2-Input-Display/releases/latest     
      
      
 #### How to compile:     
