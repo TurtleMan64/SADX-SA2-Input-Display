@@ -176,18 +176,30 @@ public class SonicInputDisplay
     {
         int bytesRead = 0;
         byte[] buffer = new byte[2];
-        if (ReadProcessMemory((int)processHandle, 0x00C8D58C, buffer, 2, ref bytesRead) == false || bytesRead != 2)
+        
+        if (ReadProcessMemory((int)processHandle, 0x00BEE5B0, buffer, 2, ref bytesRead) == false || bytesRead != 2)
         {
             theDisplay.setControllerDataMania(0);
             gameID = -1;
             return;
         }
 
-        int inputs = 0;
-        inputs+=buffer[0];
-        inputs+=buffer[1]<<8;
+        int inputsController = 0;
+        inputsController+=buffer[0];
+        inputsController+=buffer[1]<<8;
         
-        theDisplay.setControllerDataMania(inputs);
+        if (ReadProcessMemory((int)processHandle, 0x00BED58C, buffer, 2, ref bytesRead) == false || bytesRead != 2)
+        {
+            theDisplay.setControllerDataMania(0);
+            gameID = -1;
+            return;
+        }
+
+        int inputsKeyboard = 0;
+        inputsKeyboard+=buffer[0];
+        inputsKeyboard+=buffer[1]<<8;
+        
+        theDisplay.setControllerDataMania(inputsKeyboard | inputsController);
     }
     
     private static void attatchToGame()

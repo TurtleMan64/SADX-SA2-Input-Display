@@ -10,9 +10,9 @@ https://github.com/TurtleMan64/SADX-SA2-Input-Display/releases/tag/latest
 #### How to compile:     
      
 Compile JoystickDisplay.cs as a DLL with the command:    
-`C:/Windows/Microsoft.NET/Framework/v4.0.30319/csc.exe /target:library /out:joydisp.DLL JoystickDisplay.cs`    
+`C:/Windows/Microsoft.NET/Framework/v4.0.30319/csc.exe /target:library /out:joydisp.DLL JoystickDisplay.cs /optimize+`    
     
 Now compile the main SonicInputDisplay.cs while linking the library:    
-`C:/Windows/Microsoft.NET/Framework/v4.0.30319/csc.exe /out:SonicInputDisplay.exe /reference:joydisp.DLL SonicInputDisplay.cs`    
+`C:/Windows/Microsoft.NET/Framework/v4.0.30319/csc.exe /out:SonicInputDisplay.exe /reference:joydisp.DLL SonicInputDisplay.cs /optimize+`    
     
 Now you have the `SonicInputDisplay.exe` that you can run. Make sure that you run it in the same folder as the res folder that contains all of the images.     
