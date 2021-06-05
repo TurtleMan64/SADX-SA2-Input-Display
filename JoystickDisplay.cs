@@ -51,7 +51,7 @@ namespace JoystickDisplay
         private static Bitmap imgR;
         private static Bitmap imgS;
         
-        private static Pen penBlack;
+        public  static Pen stickPen;
         private static Font fontArial;
         
         private static StringFormat formatLeft;
@@ -74,13 +74,13 @@ namespace JoystickDisplay
             R    = 1;
             S    = 1;
             
-            prevA    = 1;
-            prevB    = 1;
-            prevX    = 1;
-            prevY    = 1;
-            prevL    = 1;
-            prevR    = 1;
-            prevS    = 1;
+            prevA = 1;
+            prevB = 1;
+            prevX = 1;
+            prevY = 1;
+            prevL = 1;
+            prevR = 1;
+            prevS = 1;
             
             countA = 0;
             countB = 0;
@@ -103,7 +103,7 @@ namespace JoystickDisplay
             
             reloadImages();
             
-            penBlack = new Pen(Color.Black, 1);
+            stickPen = new Pen(Color.Black, 1);
             fontArial = new Font("Arial", 16, FontStyle.Bold, GraphicsUnit.Point);
             
             recL = new Rectangle(40, 4  , 96, 36);
@@ -128,7 +128,11 @@ namespace JoystickDisplay
             formatRight .LineAlignment = StringAlignment.Center;
             
             this.DoubleBuffered = true;
-            this.Icon = new Icon("icon.ico");
+            try
+            {
+                this.Icon = new Icon(MyIcon.getIconStream());
+            }
+            catch {}
             
             this.KeyPreview = true;
             this.PreviewKeyDown += new PreviewKeyDownEventHandler(keyPress);
@@ -347,7 +351,7 @@ namespace JoystickDisplay
                 int drawY = 68 -((64*joyY)/128);
 
                 e.Graphics.DrawImage(imgBase, 108-64, 68-64, 128, 128);
-                e.Graphics.DrawLine(penBlack, 108, 68, drawX, drawY);
+                e.Graphics.DrawLine(stickPen, 108, 68, drawX, drawY);
                 e.Graphics.DrawImage(imgStickSmall, drawX-4, drawY-4, 8, 8);
 
                 double radius = Math.Min(Math.Sqrt((joyX*joyX)+(joyY*joyY)), 128.0);
@@ -400,7 +404,7 @@ namespace JoystickDisplay
         public void reloadImages()
         {
             string path = System.IO.Path.GetDirectoryName(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName);
-            string[] folders = System.IO.Directory.GetDirectories(path,"*", System.IO.SearchOption.AllDirectories);
+            string[] folders = System.IO.Directory.GetDirectories(path, "*", System.IO.SearchOption.AllDirectories);
             
             if (folderIndex < 0 || folderIndex >= folders.Length)
             {
@@ -424,7 +428,7 @@ namespace JoystickDisplay
         public void keyPress(object sender, PreviewKeyDownEventArgs e)
         {
             string path = System.IO.Path.GetDirectoryName(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName);
-            string[] folders = System.IO.Directory.GetDirectories(path,"*", System.IO.SearchOption.AllDirectories);
+            string[] folders = System.IO.Directory.GetDirectories(path, "*", System.IO.SearchOption.AllDirectories);
             
             int prevFolderIndex = folderIndex;
             
@@ -488,6 +492,6 @@ namespace JoystickDisplay
                 System.IO.File.WriteAllText("Index.ini", text);
             }
             catch {}
-        }        
+        }
     }
 }

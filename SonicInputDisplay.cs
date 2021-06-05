@@ -9,28 +9,27 @@ using JoystickDisplay;
 
 public class SonicInputDisplay
 {
-    const int PROCESS_VM_READ = 0x0010;
-    const int SW_HIDE = 0;
+    public const int PROCESS_VM_READ = 0x0010;
+    public const int SW_HIDE = 0;
 
     [DllImport("kernel32.dll")]
-    static extern IntPtr GetConsoleWindow();
+    public static extern IntPtr GetConsoleWindow();
 
     [DllImport("user32.dll")]
-    static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+    public static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
 
     [DllImport("kernel32.dll")]
     public static extern IntPtr OpenProcess(int dwDesiredAccess, bool bInheritHandle, int dwProcessId);
 
     [DllImport("kernel32.dll")]
-    public static extern bool ReadProcessMemory(int hProcess, 
-        int lpBaseAddress, byte[] lpBuffer, int dwSize, ref int lpNumberOfBytesRead);
+    public static extern bool ReadProcessMemory(int hProcess, int lpBaseAddress, byte[] lpBuffer, int dwSize, ref int lpNumberOfBytesRead);
     
     public static IntPtr processHandle = IntPtr.Zero;
     public static int gameID = -1;
     public static bool loop = true;
-    
-    private static Display theDisplay;
-    
+
+    public static Display theDisplay;
+
     public static void Main()
     {
         var handle = GetConsoleWindow();
@@ -53,6 +52,17 @@ public class SonicInputDisplay
             int g = Int32.Parse(color[1]);
             int b = Int32.Parse(color[2]);
             theDisplay.BackColor = Color.FromArgb(r, g, b);
+        }
+        catch {}
+        
+        try
+        {
+            string[] lines = System.IO.File.ReadAllLines("StickColor.ini");
+            string[] color = lines[0].Split(',');
+            int r = Int32.Parse(color[0]);
+            int g = Int32.Parse(color[1]);
+            int b = Int32.Parse(color[2]);
+            Display.stickPen = new Pen(Color.FromArgb(r, g, b), 1);
         }
         catch {}
         
@@ -80,7 +90,7 @@ public class SonicInputDisplay
                 default: attatchToGame(); break;
             }
             theDisplay.Refresh();
-            System.Threading.Thread.Sleep(14);
+            System.Threading.Thread.Sleep(5);
         }
     }
 
