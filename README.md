@@ -10,6 +10,8 @@ Compatable games list:
  * Sonic Mania (Steam)
  * Sonic Generations (Steam)
 
+If there are no games to read inputs from, then your controller will be read from directly.
+
 ### Download the exe:     
 https://github.com/TurtleMan64/SADX-SA2-Input-Display/releases/latest     
 
