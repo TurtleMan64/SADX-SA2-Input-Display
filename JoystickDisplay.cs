@@ -308,6 +308,38 @@ namespace JoystickDisplay
             refreshButtonCounts();
         }
         
+        public void setControllerDataGenerations(int buttons, float newX, float newY)
+        {
+            A = buttons & 1;
+            B = buttons & 2;
+            Y = buttons & 16;
+            X = buttons & 8;
+            S = buttons & 1024;
+            R = buttons & (8192 | 32768);
+            L = buttons & (4096 | 16384);
+            
+            joyX = (int)(newX*127);
+            joyY = (int)(newY*127);
+            
+            refreshButtonCounts();
+        }
+        
+        public void setControllerData(char a, char b, char y, char x, char s, char r, char l, float newX, float newY)
+        {
+            A = a;
+            B = b;
+            Y = y;
+            X = x;
+            S = s;
+            R = r;
+            L = l;
+            
+            joyX = (int)(newX*127);
+            joyY = (int)(newY*127);
+            
+            refreshButtonCounts();
+        }
+        
         protected override void OnPaint(PaintEventArgs e)
         {
             if (A != 0)

@@ -29,6 +29,8 @@ public class SonicInputDisplay
     public static bool loop = true;
 
     public static Display theDisplay;
+    
+    public static int nextProcessCheck = 0;
 
     public static void Main()
     {
@@ -43,6 +45,8 @@ public class SonicInputDisplay
         theDisplay.StartPosition = FormStartPosition.CenterScreen;
         theDisplay.BackColor = Color.FromArgb(2, 2, 2); //Almost, but not exactly black
         theDisplay.Text = "Searching for game...";
+        
+        ControllerReader.init(theDisplay);
         
         try
         {
@@ -86,6 +90,8 @@ public class SonicInputDisplay
                 case 2: setValuesFromHeroes(); break;
                 
                 case 3: setValuesFromMania(); break;
+                
+                case 4: setValuesFromGenerations(); break;
                     
                 default: attatchToGame(); break;
             }
@@ -187,7 +193,7 @@ public class SonicInputDisplay
         int bytesRead = 0;
         byte[] buffer = new byte[2];
         
-        if (ReadProcessMemory((int)processHandle, 0x00BEE5B0, buffer, 2, ref bytesRead) == false || bytesRead != 2)
+        if (ReadProcessMemory((int)processHandle, 0x013CE9B0, buffer, 2, ref bytesRead) == false || bytesRead != 2)
         {
             theDisplay.setControllerDataMania(0);
             gameID = -1;
@@ -198,7 +204,7 @@ public class SonicInputDisplay
         inputsController+=buffer[0];
         inputsController+=buffer[1]<<8;
         
-        if (ReadProcessMemory((int)processHandle, 0x00BED58C, buffer, 2, ref bytesRead) == false || bytesRead != 2)
+        if (ReadProcessMemory((int)processHandle, 0x013CD58C, buffer, 2, ref bytesRead) == false || bytesRead != 2)
         {
             theDisplay.setControllerDataMania(0);
             gameID = -1;
@@ -212,9 +218,63 @@ public class SonicInputDisplay
         theDisplay.setControllerDataMania(inputsKeyboard | inputsController);
     }
     
+    private static void setValuesFromGenerations()
+    {
+        int bytesRead = 0;
+        byte[] buffer = new byte[4];
+        
+        if (ReadProcessMemory((int)processHandle, 0x01E77B68, buffer, 4, ref bytesRead) == false || bytesRead != 4)
+        {
+            theDisplay.setControllerDataGenerations(0, 0, 0);
+            gameID = -1;
+            return;
+        }
+        
+        float joyX = System.BitConverter.ToSingle(buffer, 0);
+        
+        if (ReadProcessMemory((int)processHandle, 0x01E77B6C, buffer, 4, ref bytesRead) == false || bytesRead != 4)
+        {
+            theDisplay.setControllerDataGenerations(0, 0, 0);
+            gameID = -1;
+            return;
+        }
+        
+        float joyY = System.BitConverter.ToSingle(buffer, 0);
+        
+        if (ReadProcessMemory((int)processHandle, 0x01E76164, buffer, 2, ref bytesRead) == false || bytesRead != 2)
+        {
+            theDisplay.setControllerDataGenerations(0, 0, 0);
+            gameID = -1;
+            return;
+        }
+
+        int buttons = 0;
+        buttons+=buffer[0];
+        buttons+=buffer[1]<<8;
+        
+        theDisplay.setControllerDataGenerations(buttons, joyX, joyY);
+    }
+    
     private static void attatchToGame()
     {
-        theDisplay.Text = "Searching for game...";
+        ControllerReader.pollAndUpdate();
+        
+        if (ControllerReader.isConnected)
+        {
+            theDisplay.Text = "Controller Input";
+        }
+        else
+        {
+            theDisplay.Text = "Searching for game...";
+        }
+        
+        nextProcessCheck--;
+        if (nextProcessCheck > 0)
+        {
+            return;
+        }
+        nextProcessCheck = 400;
+        
         processHandle = IntPtr.Zero;
         gameID = -1;
         
@@ -254,7 +314,15 @@ public class SonicInputDisplay
                         }
                         catch
                         {
-                            gameID = -1;
+                            try
+                            {
+                                process = Process.GetProcessesByName("SonicGenerations")[0];
+                                gameID = 4;
+                            }
+                            catch
+                            {
+                                gameID = -1;
+                            }
                         }
                     }
                 }
@@ -273,8 +341,6 @@ public class SonicInputDisplay
             }
         }
         
-        System.Threading.Thread.Sleep(500);
-        
         switch (gameID)
         {
             case 0: theDisplay.Text = "SA2 Input"; break;
@@ -284,6 +350,8 @@ public class SonicInputDisplay
             case 2: theDisplay.Text = "Heroes Input"; break;
             
             case 3: theDisplay.Text = "Mania Input"; break;
+            
+            case 4: theDisplay.Text = "Generations Input"; break;
                 
             default: break;
         }
