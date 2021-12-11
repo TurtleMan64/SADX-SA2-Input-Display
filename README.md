@@ -8,6 +8,7 @@ Compatable games list:
  * Sonic Adventure DX (2004 disc version, not Steam release)
  * Sonic Heroes
  * Sonic Mania (Steam)
+ * Sonic Generations (Steam)
 
 ### Download the exe:     
 https://github.com/TurtleMan64/SADX-SA2-Input-Display/releases/latest     
