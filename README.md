@@ -23,4 +23,9 @@ https://github.com/TurtleMan64/SADX-SA2-Input-Display/releases/latest
  
 #### How to compile:     
 
-Use the provided `build.bat` script to build the project. This will produce the final `SonicInputDisplay.exe`
+* 2.0 (C++)
+   * Open the `SonicInputDisplay.sln` in Visual Studio 2017. The hit build and it will produce the final `SonicInputDisplay.exe`.
+   * This version will read from your controller when there are no games to read from.
+* 1.9 (C#)
+   * Use the provided `build.bat` script to build the project. This will produce the final `SonicInputDisplay.exe`.
+   * This version will not show any inputs if there is no game to read from.
