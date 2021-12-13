@@ -79,7 +79,7 @@ void saveIndex();
 void setIcon()
 {
     #include "icon.c"
- 
+
     Uint32 rmask, gmask, bmask, amask;
     rmask = 0x000000ff;
     gmask = 0x0000ff00;
@@ -98,7 +98,7 @@ void setIcon()
         amask);
 
     SDL_SetWindowIcon(window, icon);
- 
+
     SDL_FreeSurface(icon);
 }
 
@@ -209,7 +209,7 @@ int main(int argc, char* argv[])
                     reloadImages();
                     break;
                 }
-        
+
                 default:
                     break;
             }
@@ -303,18 +303,18 @@ void pollAndUpdateGameController()
     char s = 0;
     char r = 0;
     char l = 0;
-    
+
     float joyX = 0.0f;
     float joyY = 0.0f;
-    
+
     SDL_GameControllerUpdate();
-    
+
     if (SDL_GameControllerGetAttached(controller) == SDL_FALSE)
     {
         controllerIsConnected = false;
-        
+
         int numJoysticks = SDL_NumJoysticks();
-            
+
         for (int i = 0; i < numJoysticks; i++)
         {
             if (SDL_IsGameController(i) != SDL_FALSE)
@@ -330,7 +330,7 @@ void pollAndUpdateGameController()
     else
     {
         controllerIsConnected = true;
-        
+
         a       = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_A);
         b       = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_B);
         y       = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_Y);
@@ -342,12 +342,12 @@ void pollAndUpdateGameController()
         char dd = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_DOWN);
         char dl = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_LEFT);
         char dr = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_RIGHT);
-        
+
         int leftX    = (int)SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTX);
         int leftY    = (int)SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTY);
         int triggerL = (int)SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_TRIGGERLEFT);
         int triggerR = (int)SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_TRIGGERRIGHT);
-        
+
         // Positive range is from 0 to 32767. Let's make it 32768.
         if (leftX    > 0) { leftX    += 1; }
         if (leftY    > 0) { leftY    += 1; }
@@ -358,17 +358,17 @@ void pollAndUpdateGameController()
         joyY        =   -leftY/32768.0f;
         float trigL = triggerL/32768.0f;
         float trigR = triggerR/32768.0f;
-        
+
         if (trigL > 0.5f)
         {
             l = 1;
         }
-        
+
         if (trigR > 0.5f)
         {
             r = 1;
         }
-        
+
         if (dr != 0)
         {
             joyX = 1.0f;
@@ -377,7 +377,7 @@ void pollAndUpdateGameController()
         {
             joyX = -1.0f;
         }
-        
+
         if (du != 0)
         {
             joyY = 1.0f;
@@ -395,7 +395,7 @@ void pollAndUpdateGameController()
     S = s;
     R = r;
     L = l;
-            
+
     JoyX = (int)(joyX*127);
     JoyY = (int)(joyY*127);
 }
@@ -430,7 +430,7 @@ void attachToGame()
     }
 
     gameId = -1;
-        
+
     DWORD pid = 0;
 
     pid = getProcessIdByName("sonic2app.exe");
@@ -479,7 +479,7 @@ void attachToGame()
             }
         }
     }
-        
+
     if (gameId != -1)
     {
         processHandle = OpenProcess(PROCESS_VM_READ, false, pid);
@@ -489,7 +489,7 @@ void attachToGame()
             gameId = -1;
         }
     }
-        
+
     switch (gameId)
     {
         case 0: SDL_SetWindowTitle(window, "SA2 Input"        ); break;
@@ -518,19 +518,19 @@ void setValuesFromSA2()
     buttons+=buffer[1]<<8;
     buttons+=buffer[2]<<16;
     buttons+=buffer[3]<<24;
-    
+
     JoyX = 0;
     JoyX+=buffer[4];
     JoyX+=buffer[5]<<8;
     JoyX+=buffer[6]<<16;
     JoyX+=buffer[7]<<24;
-    
+
     JoyY = 0;
     JoyY+=buffer[8];
     JoyY+=buffer[9]<<8;
     JoyY+=buffer[10]<<16;
     JoyY+=buffer[11]<<24;
-    
+
     A = buttons & 256;
     B = buttons & 512;
     Y = buttons & 2048;
@@ -538,13 +538,13 @@ void setValuesFromSA2()
     S = buttons & 4096;
     R = buttons & 32;
     L = buttons & 64;
-    
+
     //D-Pad
     int up    = buttons & 8;
     int down  = buttons & 4;
     int left  = buttons & 1;
     int right = buttons & 2;
-            
+
     if (right != 0)
     {
         JoyX = 127;
@@ -553,7 +553,7 @@ void setValuesFromSA2()
     {
         JoyX = -128;
     }
-            
+
     if (up != 0)
     {
         JoyY = 127;
@@ -581,13 +581,13 @@ void setValuesFromSADX()
     buttons+=buffer[17]<<8;
     buttons+=buffer[18]<<16;
     buttons+=buffer[19]<<24;
-        
+
     JoyX = 0;
     JoyX+=buffer[0];
     JoyX+=buffer[1]<<8;
     JoyX+=buffer[1]<<16;
     JoyX+=buffer[1]<<24;
-        
+
     JoyY = 0;
     JoyY+=buffer[2];
     JoyY+=buffer[3]<<8;
@@ -595,7 +595,7 @@ void setValuesFromSADX()
     JoyY+=buffer[3]<<24;
 
     JoyY = -JoyY;
-    
+
     A = buttons & 4;
     B = buttons & 2;
     Y = buttons & 512;
@@ -603,13 +603,13 @@ void setValuesFromSADX()
     S = buttons & 8;
     R = buttons & 65536;
     L = buttons & 131072;
-    
+
     //D-Pad
     int up    = buttons & 16;
     int down  = buttons & 32;
     int left  = buttons & 64;
     int right = buttons & 128;
-            
+
     if (right != 0)
     {
         JoyX = 127;
@@ -618,7 +618,7 @@ void setValuesFromSADX()
     {
         JoyX = -128;
     }
-            
+
     if (up != 0)
     {
         JoyY = 127;
@@ -628,7 +628,7 @@ void setValuesFromSADX()
         JoyY = -128;
     }
 }
-    
+
 void setValuesFromHeroes()
 {
     SIZE_T bytesRead = 0;
@@ -646,14 +646,14 @@ void setValuesFromHeroes()
     buttons+=buffer[1]<<8;
     buttons+=buffer[2]<<16;
     buttons+=buffer[3]<<24;
-        
+
     float joyX;
     float joyY;
     float cameraPan;
     memcpy(&joyX,      &buffer[16], 4);
     memcpy(&joyY,      &buffer[20], 4);
     memcpy(&cameraPan, &buffer[24], 4);
-    
+
     A = buttons & 1;
     B = buttons & 2;
     Y = buttons & 8;
@@ -661,26 +661,26 @@ void setValuesFromHeroes()
     S = buttons & 16384;
     R = buttons & 512;
     L = buttons & 256;
-            
+
     if (cameraPan < -0.3f)
     {
         R = 1;
     }
-            
+
     if (cameraPan > 0.3f)
     {
         L = 1;
     }
-            
+
     JoyX = (int)( joyX*127);
     JoyY = (int)(-joyY*127);
-            
+
     //D-Pad
     int up    = buttons & 16;
     int down  = buttons & 32;
     int left  = buttons & 64;
     int right = buttons & 128;
-            
+
     if (right != 0)
     {
         JoyX = 127;
@@ -689,7 +689,7 @@ void setValuesFromHeroes()
     {
         JoyX = -128;
     }
-            
+
     if (up != 0)
     {
         JoyY = 127;
@@ -699,12 +699,12 @@ void setValuesFromHeroes()
         JoyY = -128;
     }
 }
-    
+
 void setValuesFromMania()
 {
     SIZE_T bytesRead = 0;
     char buffer[2];
-        
+
     if (ReadProcessMemory(processHandle, (LPCVOID)0x013CE9B0, buffer, 2, &bytesRead) == false || bytesRead != 2)
     {
         CloseHandle(processHandle);
@@ -716,7 +716,7 @@ void setValuesFromMania()
     int inputsController = 0;
     inputsController+=buffer[0];
     inputsController+=buffer[1]<<8;
-        
+
     if (ReadProcessMemory(processHandle, (LPCVOID)0x013CD58C, buffer, 2, &bytesRead) == false || bytesRead != 2)
     {
         CloseHandle(processHandle);
@@ -730,24 +730,24 @@ void setValuesFromMania()
     inputsKeyboard+=buffer[1]<<8;
 
     int inputs = inputsKeyboard | inputsController;
-        
+
     A = inputs & 4096;
     B = inputs & 8192;
     Y = inputs & 32768;
     X = inputs & 16384;
     S = inputs & 48;
-            
+
     R = 0;
     L = 0;
-            
+
     JoyX = 0;
     JoyY = 0;
-            
+
     int up    = inputs & 1;
     int down  = inputs & 2;
     int left  = inputs & 4;
     int right = inputs & 8;
-            
+
     if (right != 0)
     {
         JoyX = 127;
@@ -756,7 +756,7 @@ void setValuesFromMania()
     {
         JoyX = -128;
     }
-            
+
     if (up != 0)
     {
         JoyY = 127;
@@ -766,12 +766,12 @@ void setValuesFromMania()
         JoyY = -128;
     }
 }
-    
+
 void setValuesFromGenerations()
 {
     SIZE_T bytesRead = 0;
     char buffer[4];
-        
+
     if (ReadProcessMemory(processHandle, (LPCVOID)0x01E77B68, buffer, 4, &bytesRead) == false || bytesRead != 4)
     {
         CloseHandle(processHandle);
@@ -779,10 +779,10 @@ void setValuesFromGenerations()
         gameId = -1;
         return;
     }
-    
+
     float joyX;
     memcpy(&joyX, &buffer[0], 4);
-        
+
     if (ReadProcessMemory(processHandle, (LPCVOID)0x01E77B6C, buffer, 4, &bytesRead) == false || bytesRead != 4)
     {
         CloseHandle(processHandle);
@@ -790,10 +790,10 @@ void setValuesFromGenerations()
         gameId = -1;
         return;
     }
-        
+
     float joyY;
     memcpy(&joyY, &buffer[0], 4);
-        
+
     if (ReadProcessMemory(processHandle, (LPCVOID)0x01E76164, buffer, 2, &bytesRead) == false || bytesRead != 2)
     {
         CloseHandle(processHandle);
@@ -805,7 +805,7 @@ void setValuesFromGenerations()
     int buttons = 0;
     buttons+=buffer[0];
     buttons+=buffer[1]<<8;
-        
+
     A = buttons & 1;
     B = buttons & 2;
     Y = buttons & 16;
@@ -813,7 +813,7 @@ void setValuesFromGenerations()
     S = buttons & 1024;
     R = buttons & (8192 | 32768);
     L = buttons & (4096 | 16384);
-    
+
     JoyX = (int)(joyX*127);
     JoyY = (int)(joyY*127);
 }
@@ -847,7 +847,6 @@ DWORD getProcessIdByName(const char* processName)
 //https://stackoverflow.com/questions/41404711/how-to-list-files-in-a-directory-using-the-windows-api
 std::vector<std::string> getSkinFolders(const std::string &directory)
 {
-    printf("getSkinFolders\n");
     WIN32_FIND_DATAA findData;
     HANDLE hFind = INVALID_HANDLE_VALUE;
     std::string full_path = directory + "\\*";
@@ -863,7 +862,6 @@ std::vector<std::string> getSkinFolders(const std::string &directory)
 
     while (FindNextFileA(hFind, &findData) != 0)
     {
-        printf("%s %s %d\n", findData.cFileName, findData.cAlternateFileName, findData.dwFileAttributes);
         if (findData.dwFileAttributes & 16)
         {
             std::string fToCheck = findData.cFileName;
@@ -883,13 +881,11 @@ std::vector<std::string> getSkinFolders(const std::string &directory)
 
 void reloadImages()
 {
-    printf(" reloadImages folderIndex = %d\n", folderIndex);
     if (folderIndex < 0 || folderIndex >= (int)skinFolders.size())
     {
         folderIndex = 0;
     }
-    printf(" reloadImages folderIndex = %d\n", folderIndex);
-    
+
     std::string folder = skinFolders[folderIndex];
 
     if (imgBase       != nullptr) { SDL_DestroyTexture(imgBase      ); imgBase       = nullptr; }

@@ -1,8 +1,8 @@
 static const struct {
-  unsigned int 	 width;
-  unsigned int 	 height;
-  unsigned int 	 bytes_per_pixel;
-  unsigned char	 pixel_data[64 * 64 * 4 + 1];
+  unsigned int      width;
+  unsigned int      height;
+  unsigned int      bytes_per_pixel;
+  unsigned char     pixel_data[64 * 64 * 4 + 1];
 } imgIcon = {
   64, 64, 4,
   "\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000"

@@ -38,7 +38,7 @@ std::vector<std::string> readFileLines(const char* filename)
         file.close();
         return lines;
     }
-    
+
     while (!file.eof())
     {
         std::string s;
