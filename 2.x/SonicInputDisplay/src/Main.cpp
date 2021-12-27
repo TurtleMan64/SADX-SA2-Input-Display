@@ -1,6 +1,7 @@
 #include <SDL/SDL_image.h>
 #include <SDL/SDL.h>
 #include <SDL/SDL_syswm.h>
+#include <SDL/SDL_hints.h>
 
 #include <Windows.h>
 #include <tlhelp32.h>
@@ -110,7 +111,8 @@ int main(int argc, char* argv[])
     HWND handle = GetConsoleWindow();
     ShowWindow(handle, SW_HIDE);
 
-    SDL_SetHintWithPriority("SDL_GAMECONTROLLER_USE_BUTTON_LABELS", "0", SDL_HINT_OVERRIDE);
+    SDL_SetHintWithPriority(SDL_HINT_GAMECONTROLLER_USE_BUTTON_LABELS, "0", SDL_HINT_OVERRIDE);
+    SDL_SetHintWithPriority(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS, "1", SDL_HINT_OVERRIDE);
 
     SDL_Init(SDL_INIT_VIDEO);
     SDL_Init(SDL_INIT_GAMECONTROLLER);
@@ -514,22 +516,11 @@ void setValuesFromSA2()
     }
 
     int buttons = 0;
-    buttons+=buffer[0];
-    buttons+=buffer[1]<<8;
-    buttons+=buffer[2]<<16;
-    buttons+=buffer[3]<<24;
+    memcpy(&buttons, &buffer[0], 4);
 
-    JoyX = 0;
-    JoyX+=buffer[4];
-    JoyX+=buffer[5]<<8;
-    JoyX+=buffer[6]<<16;
-    JoyX+=buffer[7]<<24;
+    memcpy(&JoyX, &buffer[4], 4);
 
-    JoyY = 0;
-    JoyY+=buffer[8];
-    JoyY+=buffer[9]<<8;
-    JoyY+=buffer[10]<<16;
-    JoyY+=buffer[11]<<24;
+    memcpy(&JoyY, &buffer[8], 4);
 
     A = buttons & 256;
     B = buttons & 512;
@@ -577,24 +568,18 @@ void setValuesFromSADX()
     }
 
     int buttons = 0;
-    buttons+=buffer[16];
-    buttons+=buffer[17]<<8;
-    buttons+=buffer[18]<<16;
-    buttons+=buffer[19]<<24;
+    memcpy(&buttons, &buffer[16], 4);
 
-    JoyX = 0;
-    JoyX+=buffer[0];
-    JoyX+=buffer[1]<<8;
-    JoyX+=buffer[1]<<16;
-    JoyX+=buffer[1]<<24;
+    short joyX = 0;
+    memcpy(&joyX, &buffer[0], 2);
+    JoyX = joyX;
 
-    JoyY = 0;
-    JoyY+=buffer[2];
-    JoyY+=buffer[3]<<8;
-    JoyY+=buffer[3]<<16;
-    JoyY+=buffer[3]<<24;
+    short joyY = 0;
+    memcpy(&joyY, &buffer[2], 2);
+    JoyY = -joyY;
 
-    JoyY = -JoyY;
+    short camX = 0;
+    memcpy(&camX, &buffer[4], 2);
 
     A = buttons & 4;
     B = buttons & 2;
@@ -603,6 +588,15 @@ void setValuesFromSADX()
     S = buttons & 8;
     R = buttons & 65536;
     L = buttons & 131072;
+
+    if (camX < 0)
+    {
+        L = 1;
+    }
+    else if (camX > 0)
+    {
+        R = 1;
+    }
 
     //D-Pad
     int up    = buttons & 16;
@@ -642,10 +636,7 @@ void setValuesFromHeroes()
     }
 
     int buttons = 0;
-    buttons+=buffer[0];
-    buttons+=buffer[1]<<8;
-    buttons+=buffer[2]<<16;
-    buttons+=buffer[3]<<24;
+    memcpy(&buttons, &buffer[0], 4);
 
     float joyX;
     float joyY;
