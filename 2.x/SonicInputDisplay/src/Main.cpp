@@ -15,7 +15,7 @@
 #include "Getline.hpp"
 #include "Split.hpp"
 
-SDL_Window* window = nullptr;
+SDL_Window* sdlWindow = nullptr;
 SDL_Renderer* sdlRenderer = nullptr;
 
 SDL_Texture* imgBase       = nullptr;
@@ -98,7 +98,7 @@ void setIcon()
         bmask,
         amask);
 
-    SDL_SetWindowIcon(window, icon);
+    SDL_SetWindowIcon(sdlWindow, icon);
 
     SDL_FreeSurface(icon);
 }
@@ -118,48 +118,85 @@ int main(int argc, char* argv[])
     SDL_Init(SDL_INIT_GAMECONTROLLER);
     IMG_Init(IMG_INIT_PNG);
 
-    window = SDL_CreateWindow("Searching for game...", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 216, 136, SDL_WINDOW_SHOWN);
+    sdlWindow = SDL_CreateWindow("Searching for game...", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 216, 136, SDL_WINDOW_SHOWN);
 
-    sdlRenderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    // Find the renderer that uses d3d11.
+    for (int rendererIndex = 0; rendererIndex < 100; rendererIndex++)
+    {
+        sdlRenderer = SDL_CreateRenderer(sdlWindow, rendererIndex, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+
+        if (sdlRenderer == nullptr) // We don't have d3d11, just use whatever is available and transparency won't work.
+        {
+            sdlRenderer = SDL_CreateRenderer(sdlWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+            break;
+        }
+
+        SDL_RendererInfo info;
+        SDL_GetRendererInfo(sdlRenderer, &info);
+
+        std::string name = info.name;
+        if (name == "direct3d11") // We NEED d3d11 for transparency to work in OBS capture.
+        {
+            break;
+        }
+        else
+        {
+            SDL_DestroyRenderer(sdlRenderer);
+            sdlRenderer = nullptr;
+        }
+    }
+
+    // This is the texture that we render on.
+    SDL_Texture* textureTransparent = SDL_CreateTexture(sdlRenderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 216, 136);
+
+    SDL_SetTextureBlendMode(textureTransparent, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawBlendMode(sdlRenderer, SDL_BLENDMODE_BLEND);
 
     setIcon();
 
     // Disable the minimize and maximize buttons.
     SDL_SysWMinfo wmInfo;
     SDL_VERSION(&wmInfo.version);
-    SDL_GetWindowWMInfo(window, &wmInfo);
+    SDL_GetWindowWMInfo(sdlWindow, &wmInfo);
     HWND hwnd = wmInfo.info.win.window;
     SetWindowLong(hwnd, GWL_STYLE, GetWindowLong(hwnd, GWL_STYLE) & ~WS_MINIMIZEBOX);
     SetWindowLong(hwnd, GWL_STYLE, GetWindowLong(hwnd, GWL_STYLE) & ~WS_MAXIMIZEBOX);
 
-    int bgR = 0;
-    int bgG = 0;
-    int bgB = 0;
+    char bgR = 0;
+    char bgG = 0;
+    char bgB = 0;
     std::vector<std::string> bgColorLines = readFileLines("BackgroundColor.ini");
     if (bgColorLines.size() >= 1)
     {
         std::vector<std::string> bgColors = split(bgColorLines[0], ',');
         if (bgColors.size() >= 3)
         {
-            bgR = std::stoi(bgColors[0]);
-            bgG = std::stoi(bgColors[1]);
-            bgB = std::stoi(bgColors[2]);
+            bgR = (char)std::stoi(bgColors[0]);
+            bgG = (char)std::stoi(bgColors[1]);
+            bgB = (char)std::stoi(bgColors[2]);
         }
     }
 
-    int stickR = 0;
-    int stickG = 0;
-    int stickB = 0;
+    char stickR = 0;
+    char stickG = 0;
+    char stickB = 0;
     std::vector<std::string> stickColorLines = readFileLines("StickColor.ini");
     if (stickColorLines.size() >= 1)
     {
         std::vector<std::string> stickColors = split(stickColorLines[0], ',');
         if (stickColors.size() >= 3)
         {
-            stickR = std::stoi(stickColors[0]);
-            stickG = std::stoi(stickColors[1]);
-            stickB = std::stoi(stickColors[2]);
+            stickR = (char)std::stoi(stickColors[0]);
+            stickG = (char)std::stoi(stickColors[1]);
+            stickB = (char)std::stoi(stickColors[2]);
         }
+    }
+
+    bool thickLine = true;
+    std::vector<std::string> lineWidthLines = readFileLines("StickLineWidth.ini");
+    if (lineWidthLines.size() >= 2)
+    {
+        thickLine = (bool)std::stoi(lineWidthLines[1]);
     }
 
     folderIndex = 0;
@@ -248,7 +285,8 @@ int main(int argc, char* argv[])
             S = 1;
         }
 
-        SDL_SetRenderDrawColor(sdlRenderer, (char)bgR, (char)bgG, (char)bgB, 255);
+        SDL_SetRenderTarget(sdlRenderer, textureTransparent);
+        SDL_SetRenderDrawColor(sdlRenderer, bgR, bgG, bgB, 0);
         SDL_RenderClear(sdlRenderer);
 
         SDL_RenderCopy(sdlRenderer, imgBase, nullptr, &recBase);
@@ -266,8 +304,15 @@ int main(int argc, char* argv[])
 
         SDL_Rect recStick = {drawCapX - 4, drawCapY - 4, 8, 8};
 
-        SDL_SetRenderDrawColor(sdlRenderer, (char)stickR, (char)stickG, (char)stickB, 255);
-        SDL_RenderDrawLine(sdlRenderer, 108, 68, drawX, drawY);
+        SDL_SetRenderDrawColor(sdlRenderer, stickR, stickG, stickB, 255);
+        SDL_RenderDrawLine(sdlRenderer, 108 - 0, 68 - 0, drawX - 0, drawY - 0);
+        if (thickLine)
+        {
+            SDL_RenderDrawLine(sdlRenderer, 108 - 1, 68 - 0, drawX - 1, drawY - 0);
+            SDL_RenderDrawLine(sdlRenderer, 108 - 0, 68 - 1, drawX - 0, drawY - 1);
+            SDL_RenderDrawLine(sdlRenderer, 108 - 1, 68 - 1, drawX - 1, drawY - 1);
+        }
+        SDL_SetRenderDrawColor(sdlRenderer, bgR, bgG, bgB, 0);
 
         SDL_RenderCopy(sdlRenderer, imgStickSmall, nullptr, &recStickSmall);
         SDL_RenderCopy(sdlRenderer, imgStick     , nullptr, &recStick     );
@@ -280,6 +325,9 @@ int main(int argc, char* argv[])
         if (R != 0) { SDL_RenderCopy(sdlRenderer, imgR, nullptr, &recR); }
         if (S != 0) { SDL_RenderCopy(sdlRenderer, imgS, nullptr, &recS); }
 
+        SDL_SetRenderTarget(sdlRenderer, nullptr);
+        SDL_RenderClear(sdlRenderer);
+        SDL_RenderCopy(sdlRenderer, textureTransparent, nullptr, nullptr);
         SDL_RenderPresent(sdlRenderer);
 
         SDL_Delay(5);
@@ -288,7 +336,7 @@ int main(int argc, char* argv[])
     saveIndex();
 
     SDL_DestroyRenderer(sdlRenderer);
-    SDL_DestroyWindow(window);
+    SDL_DestroyWindow(sdlWindow);
     SDL_Quit();
 
     return 0;
@@ -410,11 +458,11 @@ void attachToGame()
 
     if (controllerIsConnected)
     {
-        SDL_SetWindowTitle(window, "Controller Input");
+        SDL_SetWindowTitle(sdlWindow, "Controller Input");
     }
     else
     {
-        SDL_SetWindowTitle(window, "Searching for game...");
+        SDL_SetWindowTitle(sdlWindow, "Searching for game...");
     }
 
     nextProcessCheck--;
@@ -494,11 +542,11 @@ void attachToGame()
 
     switch (gameId)
     {
-        case 0: SDL_SetWindowTitle(window, "SA2 Input"        ); break;
-        case 1: SDL_SetWindowTitle(window, "SADX Input"       ); break;
-        case 2: SDL_SetWindowTitle(window, "Heroes Input"     ); break;
-        case 3: SDL_SetWindowTitle(window, "Mania Input"      ); break;
-        case 4: SDL_SetWindowTitle(window, "Generations Input"); break;
+        case 0: SDL_SetWindowTitle(sdlWindow, "SA2 Input"        ); break;
+        case 1: SDL_SetWindowTitle(sdlWindow, "SADX Input"       ); break;
+        case 2: SDL_SetWindowTitle(sdlWindow, "Heroes Input"     ); break;
+        case 3: SDL_SetWindowTitle(sdlWindow, "Mania Input"      ); break;
+        case 4: SDL_SetWindowTitle(sdlWindow, "Generations Input"); break;
         default: break;
     }
 }
